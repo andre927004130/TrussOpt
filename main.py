@@ -85,24 +85,26 @@ class TrussWeightOptimizer:
             
 
 #User input (in)
-total_length = 240
-total_height = 24
+total_length = int(input("Enter the total truss length in inches:"))
+total_height = int(input("Enter the total truss height in inches:"))
 
 #Material Properties (lb/in^3,psi)
-density = 0.005
-youngs_modulus = 1e7
-yield_strength = 1000
+density = 0.2834
+youngs_modulus = 2.9e7
+yield_strength = 60200
 
 #Loading (lbs)
-force_in = -500
+force_in = int(input("Enter the applied load value in lbs (+/-):"))
 
 #Opimize for Number of sections number of sections will be from 2 to 20  
 section_count = 20
 truss_cross_sections = {}
-for truss_section_count in range(3, section_count +1):
+truss_weights_list = {}
+for truss_section_count in range(2, section_count +1):
     new_truss = Truss(truss_section_count, total_length, total_height)
     trussOptimizer = TrussWeightOptimizer(density, youngs_modulus, yield_strength, .0625, new_truss)
     truss_cross_sections[trussOptimizer.optimal_cross_section()] = new_truss
+    truss_weights_list [trussOptimizer.optimal_cross_section()] = "Number of sections:", truss_section_count
 
 lightest_truss_weight = -1
 for cross, truss in truss_cross_sections.items():
@@ -112,7 +114,8 @@ for cross, truss in truss_cross_sections.items():
         lightest_truss_cross = cross_section_length
         lightest_truss = truss
 
-print(lightest_truss_weight)
-print(lightest_truss_cross)
-print(lightest_truss.forces())
-print(len(lightest_truss.sections))
+print("Weight of lightest truss (lbs):", lightest_truss_weight)
+print("Member cross-section width (in):", lightest_truss_cross)
+print("List of all internal truss forces (lbs):", lightest_truss.forces())
+print("Number of sections in lightest truss:",len(lightest_truss.sections))
+print(truss_weights_list)

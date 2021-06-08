@@ -1,5 +1,5 @@
 import math
-
+import matplotlib.pyplot as plt
 ##Relates one truss section to the next in order to solve for the forces in the members
 class Section:
     def __init__(self, force1, force2, force3, angle, isFinal = bool(False)):
@@ -123,11 +123,17 @@ for cross, truss in truss_cross_sections.items():
         lightest_truss_cross = cross_section_length
         lightest_truss = truss
 
+plt.plot(xaxis_sections, yaxis_weights)
+plt.xlabel("Number of Truss Sections")
+plt.ylabel("Total Weight of Truss (lbs)")
+plt.title("Optimal Truss Plot")
+plt.grid()
+plt.show()
 print("Weight of lightest truss (lbs):", lightest_truss_weight)
 print("Member cross-section width (in):", lightest_truss_cross)
 print("Number of sections in lightest truss:",len(lightest_truss.sections))
 print("##################################################################")
-print("List of all internal truss forces (lbs):", lightest_truss.forces())
-print("##################################################################")
-print("List of all truss solutions. (Ex. Weight (lbs), cross-section width(in): Number of Sections)")
-print(truss_weights_list)
+#print("List of all internal truss forces (lbs):", lightest_truss.forces())
+#print("##################################################################")
+#print("List of all truss solutions. (Ex. Weight (lbs), cross-section width(in): Number of Sections)")
+#print(truss_weights_list)

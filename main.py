@@ -1,5 +1,6 @@
 import math
 
+##Relates one truss section to the next in order to solve for the forces in the members
 class Section:
     def __init__(self, force1, force2, force3, angle, isFinal = bool(False)):
         self.f1 = self.f_ab = force1
@@ -22,6 +23,7 @@ class Section:
         else:
             return abs(self.f_ab), abs(self.f_ac),-1 * abs(self.f_cb()), -1 * abs(self.f3_next())
 
+##Creates a truss of a specified length, height, and number of nodes and uses "Section" class to solve for all member forces
 class Truss:
     def __init__(self, section_count, total_length, total_height):
         self.member_length = total_length / section_count
@@ -48,6 +50,7 @@ class Truss:
             forces += section.forces()
         return forces
 
+##Uses truss and material property inputs in order to calculates the minimum cross-section size and the overall truss weight
 class TrussWeightOptimizer:
     def __init__(self, density, youngs_modulus, yield_strength, min_cross_section, truss):
         self.density = density
@@ -60,7 +63,7 @@ class TrussWeightOptimizer:
         fos_axial = self.yield_strength * (area / force)
         fos_buckle = (math.pi)**2 * self.youngs_modulus * inertia / (force * self.truss.member_length**2)
         if force < 0:
-            return min(fos_axial, fos_buckle)
+            return max(fos_axial, fos_buckle)
         else:
             return fos_axial
     
@@ -80,7 +83,7 @@ class TrussWeightOptimizer:
             
             if self.hasAcceptableFOS(area, inertia):
                 return self.truss.truss_length * area * self.density, cross_section
-            cross_section += .0625
+            cross_section += .03125
 
             
 
@@ -97,14 +100,20 @@ yield_strength = 60200
 force_in = int(input("Enter the applied load value in lbs (+/-):"))
 
 #Opimize for Number of sections number of sections will be from 2 to 20  
-section_count = 20
+section_count = int(input("Enter the maximum amount of truss sections to iterate for:"))
 truss_cross_sections = {}
 truss_weights_list = {}
+xaxis_sections = []
+yaxis_weights = []
 for truss_section_count in range(2, section_count +1):
     new_truss = Truss(truss_section_count, total_length, total_height)
-    trussOptimizer = TrussWeightOptimizer(density, youngs_modulus, yield_strength, .0625, new_truss)
+    trussOptimizer = TrussWeightOptimizer(density, youngs_modulus, yield_strength, .03125, new_truss)
     truss_cross_sections[trussOptimizer.optimal_cross_section()] = new_truss
     truss_weights_list [trussOptimizer.optimal_cross_section()] = "Number of sections:", truss_section_count
+    xaxis_sections.append(truss_section_count)
+    individual_weights = trussOptimizer.optimal_cross_section()
+    individual_weights = individual_weights[0]
+    yaxis_weights.append(individual_weights)
 
 lightest_truss_weight = -1
 for cross, truss in truss_cross_sections.items():
@@ -116,6 +125,9 @@ for cross, truss in truss_cross_sections.items():
 
 print("Weight of lightest truss (lbs):", lightest_truss_weight)
 print("Member cross-section width (in):", lightest_truss_cross)
-print("List of all internal truss forces (lbs):", lightest_truss.forces())
 print("Number of sections in lightest truss:",len(lightest_truss.sections))
+print("##################################################################")
+print("List of all internal truss forces (lbs):", lightest_truss.forces())
+print("##################################################################")
+print("List of all truss solutions. (Ex. Weight (lbs), cross-section width(in): Number of Sections)")
 print(truss_weights_list)
